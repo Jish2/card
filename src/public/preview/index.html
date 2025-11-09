@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bateman Business Card</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://card.jgoon.com/bateman-favicon.png"
+    />
+    <style>
+      @font-face {
+        font-family: "Garamond Classico SC";
+        src: url("https://card.jgoon.com/Garamond%20Classico%20SC.ttf")
+          format("truetype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      :root {
+        color-scheme: only light;
+        font-family: "Garamond Classico SC", "EB Garamond", "Garamond",
+          "Apple Garamond", Baskerville, "Times New Roman", serif;
+        --card-scale: 0.6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: #ffffff;
+        color: #2f2b25;
+        overflow-x: hidden;
+      }
+
+      .promo-banner {
+        margin-top: 24px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New",
+          monospace;
+        font-size: 12px;
+        color: #a1a6aa;
+        text-decoration: underline;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        text-align: center;
+      }
+
+      .promo-banner:hover {
+        color: #898e93;
+      }
+
+      .card-shell {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 0 48px;
+      }
+
+      .card-scene {
+        perspective: 1200px;
+        width: min(100%, 960px);
+        height: max(420px, calc(100vh - 180px));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .card {
+        width: 480px;
+        height: calc(480px * 452 / 800);
+        padding: 24px 28px;
+        position: relative;
+        background: radial-gradient(
+          circle at 20% 15%,
+          rgba(255, 255, 255, 0.76),
+          rgba(249, 247, 236, 0.79) 42%,
+          #f7f6ed
+        );
+        border: 1.5px solid rgba(84, 78, 68, 0.2);
+        box-shadow: 0 16px 42px rgba(47, 43, 37, 0.16),
+          0 8px 18px rgba(47, 43, 37, 0.14);
+        transform-style: preserve-3d;
+        transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+        will-change: transform, box-shadow;
+        isolation: isolate;
+        overflow: hidden;
+      }
+
+      .card__overlay {
+        position: absolute;
+        inset: 0;
+        background-image: url("https://card.jgoon.com/texture.png");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.5;
+        mix-blend-mode: multiply;
+        filter: contrast(0.98) brightness(1.04);
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .card__inner {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .card__inline {
+        white-space: nowrap;
+      }
+
+      .engraved-text {
+        color: transparent;
+        background-color: #2c2925;
+        -webkit-background-clip: text;
+        background-clip: text;
+        text-shadow: -0.6px -0.7px 1.1px rgba(32, 26, 22, 0.55),
+          0.6px 0.75px 0 rgba(255, 255, 255, 0.28);
+      }
+      .engraved-tight {
+        color: transparent;
+        background-color: #302c29;
+        -webkit-background-clip: text;
+        background-clip: text;
+        text-shadow: -0.55px -0.65px 0.95px rgba(32, 26, 22, 0.5),
+          0.55px 0.65px 0 rgba(255, 255, 255, 0.26);
+      }
+
+      .card__top,
+      .card__bottom {
+        display: flex;
+        justify-content: space-between;
+        color: rgba(36, 33, 28, 0.78);
+      }
+
+      .card__phone {
+        align-self: flex-start;
+        margin-right: 40px;
+        font-size: calc(34px * var(--card-scale));
+        letter-spacing: -0.07em;
+      }
+      .card__company {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0;
+        text-align: right;
+      }
+      .card__company-line {
+        display: flex;
+        align-items: baseline;
+        gap: calc(1px * var(--card-scale));
+      }
+      .card__company-word {
+        font-size: calc(34px * var(--card-scale));
+        letter-spacing: 0.02em;
+      }
+      .card__company-ampersand {
+        font-size: calc(29px * var(--card-scale));
+        letter-spacing: 0.02em;
+        transform: translateY(calc(-2px * var(--card-scale)));
+      }
+      .card__company-tagline {
+        font-size: calc(20px * var(--card-scale));
+        letter-spacing: 0.01em;
+        font-variant: small-caps;
+        margin-top: -6px;
+      }
+      .card__center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: calc(10px * var(--card-scale));
+        letter-spacing: 0;
+        color: rgba(32, 29, 25, 0.85);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100% - 56px);
+      }
+      .card__person {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        gap: calc(6px * var(--card-scale));
+        margin-left: calc(-6px * var(--card-scale));
+      }
+      .card__person-first {
+        font-size: calc(34px * var(--card-scale));
+        font-variant: small-caps;
+        letter-spacing: -0.015em;
+      }
+      .card__person-first {
+        letter-spacing: -0.02em;
+        margin-left: calc(-2px * var(--card-scale));
+      }
+      .card__person-last {
+        font-size: calc(34px * var(--card-scale));
+        letter-spacing: -0.01em;
+        text-transform: uppercase;
+      }
+      .card__title {
+        font-variant: small-caps;
+        font-size: calc(34px * var(--card-scale));
+        letter-spacing: -0.01em;
+      }
+      .card__bottom {
+        font-size: calc(26px * var(--card-scale));
+        font-variant: small-caps;
+        letter-spacing: 0;
+        white-space: nowrap;
+        margin-left: calc(-12px * var(--card-scale));
+      }
+      .card__bottom-line {
+        display: inline-flex;
+        align-items: baseline;
+        gap: calc(10px * var(--card-scale));
+      }
+      .card__bottom-address {
+        letter-spacing: -0.04em;
+        word-spacing: -0.05em;
+      }
+      .card__bottom-contact {
+        display: inline-flex;
+        align-items: baseline;
+        gap: calc(6px * var(--card-scale));
+      }
+      .card__bottom-label {
+        font-size: calc(28px * var(--card-scale));
+        letter-spacing: -0.07em;
+      }
+      .card__bottom-label--telex {
+        letter-spacing: -0.06em;
+      }
+      .card__bottom-value {
+        font-size: calc(28px * var(--card-scale));
+        letter-spacing: -0.07em;
+      }
+      .card__bottom-value--telex {
+        letter-spacing: -0.06em;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background-image: radial-gradient(
+          circle at top left,
+          rgba(255, 255, 255, 0.9),
+          transparent 56%
+        );
+        mix-blend-mode: screen;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background-image: repeating-linear-gradient(
+          135deg,
+          rgba(90, 84, 74, 0.028) 0px,
+          rgba(90, 84, 74, 0.028) 1px,
+          transparent 1px,
+          transparent 3px
+        );
+        opacity: 0.26;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .card:hover {
+        box-shadow: 0 28px 70px rgba(47, 43, 37, 0.22);
+      }
+
+      .card__inline-telex {
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        font-variant: small-caps;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="promo-banner" href="https://card.jgoon.com"
+      >create your own bateman card here</a
+    >
+    <div class="card-shell">
+      <div class="card-scene">
+        <article class="card" data-card>
+          <div class="card__overlay" aria-hidden="true"></div>
+          <div class="card__inner">
+            <div class="card__top">
+              <span class="card__phone card__inline engraved-tight"
+                >212 555 6342</span
+              >
+              <div class="card__company">
+                <div class="card__company-line">
+                  <span class="card__company-word engraved-text">Pierce</span>
+                  <span class="card__company-ampersand engraved-text"
+                    >&amp;</span
+                  >
+                  <span class="card__company-word engraved-text">Pierce</span>
+                </div>
+                <span class="card__company-tagline engraved-text"
+                  >Mergers and Acquisitions</span
+                >
+              </div>
+            </div>
+            <div class="card__center">
+              <div class="card__person">
+                <span class="card__person-first engraved-text">Patrick</span>
+                <span class="card__person-last engraved-text">BATEMAN</span>
+              </div>
+              <span class="card__title engraved-text">Vice President</span>
+            </div>
+            <div class="card__bottom">
+              <span class="card__inline engraved-text card__bottom-line">
+                <span class="card__bottom-address engraved-text"
+                  >358 Exchange Place, New York, N.Y. 100099</span
+                >
+                <span class="card__bottom-contact card__bottom-contact--fax">
+                  <span class="card__bottom-label engraved-text">fax</span>
+                  <span class="card__bottom-value engraved-text"
+                    >212 555 6390</span
+                  >
+                </span>
+                <span class="card__bottom-contact card__bottom-contact--telex">
+                  <span
+                    class="card__bottom-label card__bottom-label--telex engraved-text"
+                    >telex</span
+                  >
+                  <span
+                    class="card__bottom-value card__bottom-value--telex engraved-text"
+                    >10 4534</span
+                  >
+                </span>
+              </span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+    <script>
+      const card = document.querySelector("[data-card]");
+      const cardScene = document.querySelector(".card-scene");
+
+      const config = {
+        maxRotateX: 18,
+        maxRotateY: 14,
+        maxRotateZ: 4,
+      };
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function applyTransform({ x, y }) {
+        const rect = cardScene.getBoundingClientRect();
+        const relativeX = (x - rect.left) / rect.width - 0.5;
+        const relativeY = (y - rect.top) / rect.height - 0.5;
+
+        const rotateY = clamp(
+          relativeX * 2 * config.maxRotateY,
+          -config.maxRotateY,
+          config.maxRotateY
+        );
+        const rotateX = clamp(
+          -relativeY * 2 * config.maxRotateX,
+          -config.maxRotateX,
+          config.maxRotateX
+        );
+        const rotateZ = clamp(
+          relativeX * 2 * config.maxRotateZ,
+          -config.maxRotateZ,
+          config.maxRotateZ
+        );
+
+        card.style.transform = `rotateX(${rotateX.toFixed(
+          2
+        )}deg) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(
+          2
+        )}deg)`;
+
+        const shadowX = (rotateY / config.maxRotateY) * 18;
+        const shadowY = (rotateX / config.maxRotateX) * 18;
+        card.style.boxShadow = `${-shadowX.toFixed(1)}px ${shadowY.toFixed(
+          1
+        )}px 45px rgba(47, 43, 37, 0.18)`;
+      }
+
+      function handlePointerMove(event) {
+        applyTransform({ x: event.clientX, y: event.clientY });
+      }
+
+      function handlePointerLeave() {
+        const rect = cardScene.getBoundingClientRect();
+        applyTransform({
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        });
+      }
+
+      cardScene.addEventListener("pointermove", handlePointerMove);
+      cardScene.addEventListener("pointerleave", handlePointerLeave);
+
+      handlePointerLeave();
+    </script>
+  </body>
+</html>
