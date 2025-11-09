@@ -13,11 +13,7 @@
       type="font/ttf"
       crossorigin
     />
-    <link
-      rel="preload"
-      href="https://card.jgoon.com/texture.png"
-      as="image"
-    />
+    <link rel="preload" href="https://card.jgoon.com/texture.png" as="image" />
     <style>
       :root {
         color-scheme: only light;
@@ -59,6 +55,8 @@
         z-index: 1;
         left: 50%;
         transform: translateX(-50%);
+        padding: 10px 18px;
+        background: #ffffff;
       }
 
       .preview-frame-wrapper {
@@ -449,6 +447,9 @@
           }
           templateHTML = await response.text();
           const previewDoc = parser.parseFromString(templateHTML, "text/html");
+          previewDoc
+            .querySelectorAll(".promo-banner")
+            .forEach((banner) => banner.remove());
           previewFrame.srcdoc =
             "<!DOCTYPE html>\n" + previewDoc.documentElement.outerHTML;
         } catch (error) {
@@ -588,11 +589,6 @@
       previewFrame.addEventListener("load", () => {
         if (!templateHTML) return;
         initializeEditableFrame();
-        const doc = previewFrame.contentDocument;
-        if (!doc) return;
-        doc.querySelectorAll(".promo-banner").forEach((banner) => {
-          banner.style.setProperty("display", "none", "important");
-        });
       });
     </script>
   </body>
