@@ -304,6 +304,25 @@
         letter-spacing: 0.03em;
         font-variant: small-caps;
       }
+
+      @media (max-width: 600px) {
+        :root {
+          --card-scale: clamp(0.45, calc(((100vw - 32px) / 480) * 0.6), 0.6);
+        }
+
+        .card-shell {
+          padding: 16px 0 32px;
+        }
+
+        .card-scene {
+          height: max(360px, calc(100vh - 140px));
+        }
+
+        .card {
+          width: min(480px, calc(100vw - 32px));
+          height: calc(min(480px, calc(100vw - 32px)) * 452 / 800);
+        }
+      }
     </style>
   </head>
   <body>
