@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <link rel="manifest" href="../site.webmanifest" />
     <link rel="preconnect" href="https://card.jgoon.com" crossorigin />
     <link
       rel="preload"
@@ -42,6 +46,7 @@
         height: 100%;
         overflow: hidden;
         overscroll-behavior: none;
+        background: #ffffff;
       }
 
       body {
@@ -61,6 +66,8 @@
       .promo-banner {
         margin: 0;
         padding: 18px 0;
+        padding-top: calc(18px + constant(safe-area-inset-top));
+        padding-top: calc(18px + env(safe-area-inset-top));
         align-self: stretch;
         width: 100%;
         position: sticky;
