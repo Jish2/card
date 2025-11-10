@@ -376,11 +376,52 @@
         maxRotateZ: 4,
       };
 
+      const motionConfig = {
+        maxDeltaBeta: 28,
+        maxDeltaGamma: 18,
+      };
+
+      const supportsDeviceOrientation =
+        typeof window.DeviceOrientationEvent !== "undefined";
+      const requiresOrientationPermission =
+        supportsDeviceOrientation &&
+        typeof DeviceOrientationEvent.requestPermission === "function";
+      const isLikelyMobile =
+        (typeof navigator !== "undefined" && navigator.maxTouchPoints > 1) ||
+        (typeof window.matchMedia === "function" &&
+          window.matchMedia("(pointer: coarse)").matches);
+
+      let touchPointerActive = false;
+      let orientationActive = false;
+      let orientationPermissionState = "unknown";
+      let orientationBaseline = null;
+      let lastOrientationRotation = null;
+
       function clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
       }
 
-      function applyTransform({ x, y }) {
+      function setCardTransform(rotateX, rotateY, rotateZ = 0) {
+        card.style.transform = `rotateX(${rotateX.toFixed(
+          2
+        )}deg) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(
+          2
+        )}deg)`;
+
+        const shadowX =
+          config.maxRotateY === 0
+            ? 0
+            : (rotateY / config.maxRotateY) * 18;
+        const shadowY =
+          config.maxRotateX === 0
+            ? 0
+            : (rotateX / config.maxRotateX) * 18;
+        card.style.boxShadow = `${-shadowX.toFixed(1)}px ${shadowY.toFixed(
+          1
+        )}px 45px rgba(47, 43, 37, 0.18)`;
+      }
+
+      function applyPointerTransform({ x, y }) {
         const rect = cardScene.getBoundingClientRect();
         const relativeX = (x - rect.left) / rect.width - 0.5;
         const relativeY = (y - rect.top) / rect.height - 0.5;
@@ -401,33 +442,209 @@
           config.maxRotateZ
         );
 
-        card.style.transform = `rotateX(${rotateX.toFixed(
-          2
-        )}deg) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(
-          2
-        )}deg)`;
-
-        const shadowX = (rotateY / config.maxRotateY) * 18;
-        const shadowY = (rotateX / config.maxRotateX) * 18;
-        card.style.boxShadow = `${-shadowX.toFixed(1)}px ${shadowY.toFixed(
-          1
-        )}px 45px rgba(47, 43, 37, 0.18)`;
+        setCardTransform(rotateX, rotateY, rotateZ);
       }
 
       function handlePointerMove(event) {
-        applyTransform({ x: event.clientX, y: event.clientY });
+        applyPointerTransform({ x: event.clientX, y: event.clientY });
       }
 
-      function handlePointerLeave() {
-        const rect = cardScene.getBoundingClientRect();
-        applyTransform({
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-        });
+      function handlePointerDown(event) {
+        if (event.pointerType === "touch") {
+          touchPointerActive = true;
+          attemptEnableDeviceOrientation();
+        }
+      }
+
+      function handlePointerUp(event) {
+        if (event.pointerType === "touch") {
+          touchPointerActive = false;
+          if (orientationActive && lastOrientationRotation) {
+            setCardTransform(
+              lastOrientationRotation.rotateX,
+              lastOrientationRotation.rotateY,
+              lastOrientationRotation.rotateZ
+            );
+          } else {
+            setCardTransform(0, 0, 0);
+          }
+        }
+      }
+
+      function handlePointerCancel(event) {
+        if (event.pointerType === "touch") {
+          touchPointerActive = false;
+          if (orientationActive && lastOrientationRotation) {
+            setCardTransform(
+              lastOrientationRotation.rotateX,
+              lastOrientationRotation.rotateY,
+              lastOrientationRotation.rotateZ
+            );
+          } else {
+            setCardTransform(0, 0, 0);
+          }
+        }
+      }
+
+      function handlePointerLeave(event) {
+        if (event && event.pointerType === "touch") {
+          touchPointerActive = false;
+          if (orientationActive && lastOrientationRotation) {
+            setCardTransform(
+              lastOrientationRotation.rotateX,
+              lastOrientationRotation.rotateY,
+              lastOrientationRotation.rotateZ
+            );
+            return;
+          }
+        }
+        setCardTransform(0, 0, 0);
+      }
+
+      function resetOrientationBaseline() {
+        orientationBaseline = null;
+        lastOrientationRotation = null;
+      }
+
+      function getScreenOrientationAngle() {
+        if (window.screen && window.screen.orientation) {
+          const { angle } = window.screen.orientation;
+          if (typeof angle === "number") {
+            return angle;
+          }
+        }
+        if (typeof window.orientation === "number") {
+          return window.orientation;
+        }
+        return 0;
+      }
+
+      function startDeviceOrientationTracking() {
+        if (!supportsDeviceOrientation || orientationActive) {
+          return;
+        }
+        resetOrientationBaseline();
+        window.addEventListener("deviceorientation", handleDeviceOrientation);
+        window.addEventListener("orientationchange", resetOrientationBaseline);
+        orientationActive = true;
+      }
+
+      async function attemptEnableDeviceOrientation() {
+        if (!supportsDeviceOrientation) {
+          return;
+        }
+
+        if (orientationPermissionState === "denied") {
+          return;
+        }
+
+        if (orientationActive) {
+          resetOrientationBaseline();
+          return;
+        }
+
+        if (requiresOrientationPermission) {
+          try {
+            const permission = await DeviceOrientationEvent.requestPermission();
+            if (permission !== "granted") {
+              orientationPermissionState = "denied";
+              return;
+            }
+            orientationPermissionState = "granted";
+          } catch (error) {
+            console.warn("Device orientation permission request failed.", error);
+            orientationPermissionState = "denied";
+            return;
+          }
+        } else {
+          orientationPermissionState = "granted";
+        }
+
+        startDeviceOrientationTracking();
+      }
+
+      function handleDeviceOrientation(event) {
+        if (!orientationActive || touchPointerActive) {
+          return;
+        }
+
+        const { beta, gamma } = event;
+        if (beta == null || gamma == null) {
+          return;
+        }
+
+        if (!orientationBaseline) {
+          orientationBaseline = { beta, gamma };
+          return;
+        }
+
+        const deltaBeta = clamp(
+          beta - orientationBaseline.beta,
+          -motionConfig.maxDeltaBeta,
+          motionConfig.maxDeltaBeta
+        );
+        const deltaGamma = clamp(
+          gamma - orientationBaseline.gamma,
+          -motionConfig.maxDeltaGamma,
+          motionConfig.maxDeltaGamma
+        );
+
+        const angle = getScreenOrientationAngle();
+
+        let tiltX = deltaBeta;
+        let tiltY = deltaGamma;
+
+        if (angle === 180 || angle === -180) {
+          tiltX = -deltaBeta;
+          tiltY = -deltaGamma;
+        } else if (angle === 90 || angle === -270) {
+          tiltX = deltaGamma;
+          tiltY = -deltaBeta;
+        } else if (angle === -90 || angle === 270) {
+          tiltX = -deltaGamma;
+          tiltY = deltaBeta;
+        }
+
+        const normalizedX = clamp(
+          tiltX / motionConfig.maxDeltaBeta,
+          -1,
+          1
+        );
+        const normalizedY = clamp(
+          tiltY / motionConfig.maxDeltaGamma,
+          -1,
+          1
+        );
+
+        const rotateX = clamp(
+          -normalizedX * config.maxRotateX,
+          -config.maxRotateX,
+          config.maxRotateX
+        );
+        const rotateY = clamp(
+          normalizedY * config.maxRotateY,
+          -config.maxRotateY,
+          config.maxRotateY
+        );
+        const rotateZ = clamp(
+          normalizedY * config.maxRotateZ,
+          -config.maxRotateZ,
+          config.maxRotateZ
+        );
+
+        lastOrientationRotation = { rotateX, rotateY, rotateZ };
+        setCardTransform(rotateX, rotateY, rotateZ);
       }
 
       cardScene.addEventListener("pointermove", handlePointerMove);
       cardScene.addEventListener("pointerleave", handlePointerLeave);
+      cardScene.addEventListener("pointerdown", handlePointerDown);
+      cardScene.addEventListener("pointerup", handlePointerUp);
+      cardScene.addEventListener("pointercancel", handlePointerCancel);
+
+      if (supportsDeviceOrientation && isLikelyMobile && !requiresOrientationPermission) {
+        startDeviceOrientationTracking();
+      }
 
       handlePointerLeave();
     </script>
