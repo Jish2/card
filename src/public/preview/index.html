@@ -38,19 +38,35 @@
         box-sizing: border-box;
       }
 
+      html {
+        height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+
       body {
         margin: 0;
         min-height: 100vh;
+        height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         background: #ffffff;
         color: #2f2b25;
         overflow-x: hidden;
+        overflow-y: hidden;
+        overscroll-behavior: none;
       }
 
       .promo-banner {
-        margin-top: 24px;
+        margin: 0;
+        padding: 18px 0;
+        align-self: stretch;
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: block;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New",
           monospace;
         font-size: 12px;
@@ -59,6 +75,9 @@
         letter-spacing: 0.12em;
         text-transform: uppercase;
         text-align: center;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid rgba(47, 43, 37, 0.08);
+        backdrop-filter: blur(4px);
       }
 
       .promo-banner:hover {
@@ -67,17 +86,25 @@
 
       .card-shell {
         flex: 1;
+        min-height: 0;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px 0 48px;
+        padding: clamp(16px, 6vh, 48px) 0;
+      }
+
+      @supports (height: 100dvh) {
+        body {
+          min-height: 100dvh;
+          height: 100dvh;
+        }
       }
 
       .card-scene {
         perspective: 1200px;
         width: min(100%, 960px);
-        height: max(420px, calc(100vh - 180px));
+        height: clamp(280px, calc(100vh - 180px), 520px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -311,11 +338,11 @@
         }
 
         .card-shell {
-          padding: 16px 0 32px;
+          padding: clamp(12px, 5vh, 24px) 0;
         }
 
         .card-scene {
-          height: max(360px, calc(100vh - 140px));
+          height: clamp(240px, calc(100vh - 180px), 420px);
         }
 
         .card {
