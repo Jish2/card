@@ -163,13 +163,31 @@
       }
 
       @media (max-width: 640px) {
+        .overlay-controls {
+          bottom: 24px;
+          width: calc(100vw - 32px);
+          max-width: 360px;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
         button {
           box-shadow: none;
+          padding: 0 20px;
+          font-size: 11px;
+          height: 42px;
+          min-width: 0;
+          flex: 1 1 calc(50% - 4px);
         }
 
         button:hover,
         button:active {
           box-shadow: none;
+        }
+
+        .overlay-controls button svg {
+          width: 14px;
+          height: 14px;
         }
       }
 
