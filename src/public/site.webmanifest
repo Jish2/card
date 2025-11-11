@@ -1,0 +1,20 @@
+{
+  "name": "Bateman Card Builder",
+  "short_name": "Bateman Card Builder",
+  "icons": [
+    {
+      "src": "bateman-favicon.png",
+      "sizes": "524x524",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "developer": [
+    {
+      "name": "jgoon",
+      "url": "http://jgoon.dev"
+    }
+  ]
+}

@@ -2,7 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="manifest" href="../site.webmanifest" />
     <link rel="preconnect" href="https://card.jgoon.com" crossorigin />
     <link
       rel="preload"
@@ -32,25 +37,55 @@
         font-family: "Garamond Classico SC", "EB Garamond", "Garamond",
           "Apple Garamond", Baskerville, "Times New Roman", serif;
         --card-scale: 0.6;
+        --safe-area-top: env(safe-area-inset-top, 0px);
+        --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --banner-padding: 18px;
+        --banner-height: calc(var(--banner-padding) + var(--safe-area-top));
+        --shell-padding: clamp(16px, 6vh, 48px);
       }
 
       * {
         box-sizing: border-box;
       }
 
+      html {
+        height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+        background: #ffffff;
+      }
+
       body {
         margin: 0;
         min-height: 100vh;
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        inset: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         background: #ffffff;
         color: #2f2b25;
-        overflow-x: hidden;
+        padding: var(--banner-height) 0 var(--safe-area-bottom);
+        overflow: hidden;
+        touch-action: pan-x;
+        overscroll-behavior: none;
       }
 
       .promo-banner {
-        margin-top: 24px;
+        margin: 0;
+        padding: var(--banner-padding) 0;
+        padding-top: calc(18px + constant(safe-area-inset-top));
+        padding-top: calc(var(--banner-padding) + env(safe-area-inset-top));
+        align-self: stretch;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: block;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New",
           monospace;
         font-size: 12px;
@@ -59,6 +94,9 @@
         letter-spacing: 0.12em;
         text-transform: uppercase;
         text-align: center;
+        background: rgba(255, 255, 255, 0.96);
+        border-bottom: 1px solid rgba(47, 43, 37, 0.08);
+        backdrop-filter: blur(4px);
       }
 
       .promo-banner:hover {
@@ -67,17 +105,25 @@
 
       .card-shell {
         flex: 1;
+        min-height: 0;
         width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 24px 0 48px;
+        padding: clamp(16px, 6vh, 48px) 0;
+      }
+
+      @supports (height: 100dvh) {
+        body {
+          min-height: 100dvh;
+          height: 100dvh;
+        }
       }
 
       .card-scene {
         perspective: 1200px;
         width: min(100%, 960px);
-        height: max(420px, calc(100vh - 180px));
+        height: clamp(280px, calc(100vh - 180px), 520px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -303,6 +349,25 @@
         font-size: 13px;
         letter-spacing: 0.03em;
         font-variant: small-caps;
+      }
+
+      @media (max-width: 600px) {
+        :root {
+          --card-scale: clamp(0.45, calc(((100vw - 32px) / 480) * 0.6), 0.6);
+        }
+
+        .card-shell {
+          padding: clamp(12px, 5vh, 24px) 0;
+        }
+
+        .card-scene {
+          height: clamp(240px, calc(100vh - 180px), 420px);
+        }
+
+        .card {
+          width: min(480px, calc(100vw - 32px));
+          height: calc(min(480px, calc(100vw - 32px)) * 452 / 800);
+        }
       }
     </style>
   </head>
