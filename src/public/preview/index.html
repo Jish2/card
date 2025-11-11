@@ -37,6 +37,11 @@
         font-family: "Garamond Classico SC", "EB Garamond", "Garamond",
           "Apple Garamond", Baskerville, "Times New Roman", serif;
         --card-scale: 0.6;
+        --safe-area-top: env(safe-area-inset-top, 0px);
+        --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --banner-padding: 18px;
+        --banner-height: calc(var(--banner-padding) + var(--safe-area-top));
+        --shell-padding: clamp(16px, 6vh, 48px);
       }
 
       * {
@@ -54,25 +59,31 @@
         margin: 0;
         min-height: 100vh;
         height: 100vh;
+        width: 100vw;
+        position: fixed;
+        inset: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
         background: #ffffff;
         color: #2f2b25;
-        overflow-x: hidden;
-        overflow-y: hidden;
+        padding: var(--banner-height) 0 var(--safe-area-bottom);
+        overflow: hidden;
+        touch-action: pan-x;
         overscroll-behavior: none;
       }
 
       .promo-banner {
         margin: 0;
-        padding: 18px 0;
+        padding: var(--banner-padding) 0;
         padding-top: calc(18px + constant(safe-area-inset-top));
-        padding-top: calc(18px + env(safe-area-inset-top));
+        padding-top: calc(var(--banner-padding) + env(safe-area-inset-top));
         align-self: stretch;
         width: 100%;
-        position: sticky;
+        position: fixed;
         top: 0;
+        left: 0;
+        right: 0;
         z-index: 20;
         display: block;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New",
